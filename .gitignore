@@ -1,0 +1,4 @@
+typescript
+node_modules
+logs/*.log
+.env
