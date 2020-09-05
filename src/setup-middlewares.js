@@ -1,4 +1,4 @@
-const { logger } = require('./common');
+const controllers = require('./controllers');
 
 module.exports = {
     setupMiddlewares: function (app) {
@@ -6,6 +6,8 @@ module.exports = {
             res.status(200).json({ Hello: 'World' });
         });
 
-        app.post('/auth/signupEmail', require('./controllers/auth').signupEmail);        
+        for (controller in controllers) {
+          controllers[controller].attachRoutes(app);
+        }
     }
 }
