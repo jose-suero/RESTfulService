@@ -3,14 +3,16 @@ const { IdentityModel } = require('../../models/identity');
 const { AppError } = require('../../common');
 const { hashPassword } = require('lib/hash-utils');
 
+const PROVIDER_NAME = 'email';
+
 exports.signupEmail = async (model) => {
   const identityExists = await IdentityModel.exists({
-      providerName: 'email',
+      providerName: PROVIDER_NAME,
       providerKey: model.email
   });
 
   if (identityExists) throw new AppError(
-      "The email provided is already registered!",
+      "The email provided is already registered for email sign in!",
       409
   );
 
@@ -24,12 +26,19 @@ exports.signupEmail = async (model) => {
 
   const identity = new IdentityModel({
       userId: user._id,
-      providerName: 'email',
+      providerName: PROVIDER_NAME,
       providerKey: model.email,
       password: await hashPassword_p
   });
 
   await identity.save();
 
-  return [user._doc, identity._doc]
+  return {
+    userId: user._id.toString(), 
+    firstName: user.firstName,
+    lastName: user.lastName,
+    identityId: identity._id,
+    email: identity.providerKey,
+    providerName: identity.providerName
+  }
 }

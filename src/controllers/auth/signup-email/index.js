@@ -1,26 +1,28 @@
-const { mapBodyMiddleware } = require('lib/model-mapper')
-const { AppError } = require('../../../common');
+const { setupControllerMiddleware } = require('lib/model-mapper')
 const authService = require('../../../services/auth-service');
-
 const { signupEmailInViewmodel } = require('./viewmodels/signup-email-in-viewmodel');
+const { signupEmailOutViewmodel } = require('./viewmodels/signup-email-out-viewmodel');
+const { createToken } = require('../functions/create-token');
 
 async function signupEmail(req, res, next) {
-    const model = req.model;
+  const model = req.model;
 
-    authService
-        .signupEmail(model)
-        .then(([user, identity]) => {
-            res.status(200).json({
-                ...user, ...identity
-            });
-        })
-        .catch(err => next(err));
+  try {
+    res.model = await authService.signupEmail(model);
+    res.model.token = await createToken(res.model.userId, {
+      firstname: res.model.firstName
+    });
+    next();
+  } catch (err) {
+    next(err);
+  }
 
 }
 
 module.exports = {
-    signupEmail: [
-        mapBodyMiddleware(signupEmailInViewmodel), 
-        signupEmail
-    ]
+  signupEmail: setupControllerMiddleware(
+    signupEmailInViewmodel,
+    signupEmailOutViewmodel,
+    signupEmail,
+    201)
 }
