@@ -1,16 +1,18 @@
-const { setupControllerMiddleware } = require('lib/model-mapper')
-const authService = require('../../../services/auth-service');
+const { setupControllerMiddleware } = require('@josesjs/model-mapper')
+const { signupEmail: service } = require('../../../services/auth-service');
 const { signupEmailInViewmodel } = require('./viewmodels/signup-email-in-viewmodel');
 const { signupEmailOutViewmodel } = require('./viewmodels/signup-email-out-viewmodel');
 const { createToken } = require('../functions/create-token');
 
 async function signupEmail(req, res, next) {
-  const model = req.model;
+  const model = req.mappedBody;
 
   try {
-    res.model = await authService.signupEmail(model);
-    res.model.token = await createToken(res.model.userId, {
-      firstname: res.model.firstName
+    res.mappedBody = await service(model);
+    res.mappedBody.token = await createToken(res.mappedBody.userId, {
+      userId: res.mappedBody.userId,
+      email: res.mappedBody.email,
+      provider: res.mappedBody.providerName
     });
     next();
   } catch (err) {

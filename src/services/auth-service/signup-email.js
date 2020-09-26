@@ -1,7 +1,7 @@
 const { UserModel } = require('../../models/user');
 const { IdentityModel } = require('../../models/identity');
 const { AppError } = require('../../common');
-const { hashPassword } = require('lib/hash-utils');
+const { hashPassword } = require('../../../lib/hash-utils');
 
 const PROVIDER_NAME = 'email';
 

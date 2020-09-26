@@ -1,4 +1,4 @@
-const { ModelMapperError } = require('lib/model-mapper/classes/model-mapper-error');
+const { ModelMapperFieldError } = require('@josesjs/model-mapper');
 
 module.exports = {
     signupEmailInViewmodel: {
@@ -23,8 +23,8 @@ module.exports = {
                 }
                 
                 //TODO: check password policy here
-
-                throw new ModelMapperError(
+                
+                throw new ModelMapperFieldError(
                     'Please verify your password. Make sure you confirmed the value entered.',
                     key,
                     mapModelSpec);

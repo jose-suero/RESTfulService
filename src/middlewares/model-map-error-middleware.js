@@ -1,13 +1,14 @@
-const { errorMiddleware } = require('lib/model-mapper');
+const { errorMiddleware } = require('@josesjs/model-mapper');
 const { logger } = require('../common');
 
 exports.modelMapErrorMiddleWare = errorMiddleware((err, req, res, next) => {
   logger.child({ ModdelMapping: true })
     .debug(err);
 
+  const errors = err.getErrors();
+
   res.status(400).json({
-    "error": err.message,
-    "key": err.key,
-    "specs": err.mapModelSpec
+    message: 'Please check the errors.',
+    errors
   });
-})
+});

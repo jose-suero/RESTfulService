@@ -1,17 +1,18 @@
-const { setupControllerMiddleware } = require('lib/model-mapper');
+const { setupControllerMiddleware } = require('@josesjs/model-mapper');
 const { loginEmailInViewmodel } = require('./viewmodels/login-email-in-viewmodel');
 const { loginEmailOutViewmodel } = require('./viewmodels/login-email-out-viewmodel');
 const { IdentityModel } = require('../../../models/identity');
 const { UserModel } = require('../../../models/user');
 const { AppError } = require('../../../common');
-const { checkPassword } = require('lib/hash-utils');
+const { checkPassword } = require('../../../../lib/hash-utils');
 const { createToken } = require('../functions/create-token');
+const db = require('mongoose');
 
 exports.loginEmail = setupControllerMiddleware(
   loginEmailInViewmodel,
   loginEmailOutViewmodel,
   async (req, res, next) => {
-    const { email, password } = req.model;
+    const { email, password } = req.mappedBody;
 
     const identity = await IdentityModel.findOne({
       providerKey: email,
@@ -20,13 +21,13 @@ exports.loginEmail = setupControllerMiddleware(
 
     if (identity) {
       const userPromise = UserModel.findById(identity.userId);
-      const pwdOk = await checkPassword(password, identity.password);
-      
+
       const user = await userPromise;
-      if (user.isLockedOut){
+      if (user.isLockedOut) {
         return next(new AppError('User is locked out.', 401));
       }
 
+      const pwdOk = await checkPassword(password, identity.password);
       if (pwdOk) {
         user.isLockedOut = false;
         user.invalidLoginTries = 0;
@@ -35,16 +36,20 @@ exports.loginEmail = setupControllerMiddleware(
         identity.lastUseDate = new Date();
         identity.invalidTries = 0;
 
-        const actions = [];
-        actions.push(
+        const session = await db.startSession();
+        session.startTransaction();
+
+        const actions = [
           createToken(identity.userId),
-          identity.save(),
-          user.save()
-        );
+          identity.save({ session: session }),
+          user.save({ session: session })
+        ];
 
         const results = await Promise.all(actions);
 
-        res.model = { token: results[0] };
+        await session.commitTransaction();
+
+        res.mappedBody = { token: results[0] };
         return next();
       }
 
