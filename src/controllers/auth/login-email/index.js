@@ -36,19 +36,14 @@ exports.loginEmail = setupControllerMiddleware(
         identity.lastUseDate = new Date();
         identity.invalidTries = 0;
 
-        const session = await db.startSession();
-        session.startTransaction();
-
         const actions = [
           createToken(identity.userId),
-          identity.save({ session: session }),
-          user.save({ session: session })
+          identity.save(),
+          user.save()
         ];
 
         const results = await Promise.all(actions);
-
-        await session.commitTransaction();
-
+        
         res.mappedBody = { token: results[0] };
         return next();
       }
