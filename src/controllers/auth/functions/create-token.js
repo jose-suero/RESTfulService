@@ -6,13 +6,13 @@ const TOKENISSUER = process.env.RFS_TOKENISSUER;
 exports.createToken = async function (sub, payload = {}) {
   const tokenPayload = {
     iss: TOKENISSUER,
-    exp: Math.floor(Date.now()/100)+(60*60),
     sub,
     ...payload
   }
-  
+
   return await jwt.sign(
     tokenPayload,
-    TOKENSECRET
-  )
+    TOKENSECRET,
+    { algorithm: 'HS256', expiresIn: '48h' }
+  );
 }
