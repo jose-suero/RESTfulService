@@ -1,5 +1,5 @@
 const controllers = require('./controllers');
-const { loadAuthentication } = require('./middlewares/loadAuthentication');
+const { loadAuthentication } = require('./middlewares/load-authentication');
 
 module.exports = {
   setupMiddlewares: function (app) {
