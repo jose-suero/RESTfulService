@@ -1,8 +1,8 @@
 const { setupControllerMiddleware } = require('@josesjs/model-mapper')
 const { signupEmail: service } = require('../../../services/auth-service');
+const { createToken } = require('../../../services/auth-service/create-token');
 const { signupEmailInViewmodel } = require('./viewmodels/signup-email-in-viewmodel');
 const { signupEmailOutViewmodel } = require('./viewmodels/signup-email-out-viewmodel');
-const { createToken } = require('../functions/create-token');
 
 async function signupEmail(req, res, next) {
   const model = req.mappedBody;
