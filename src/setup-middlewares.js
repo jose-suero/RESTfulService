@@ -1,13 +1,16 @@
 const controllers = require('./controllers');
+const { loadAuthentication } = require('./middlewares/loadAuthentication');
 
 module.exports = {
-    setupMiddlewares: function (app) {
-        app.get('/', (req, res) => {
-            res.status(200).json({ Hello: 'World' });
-        });
+  setupMiddlewares: function (app) {
+    app.use(loadAuthentication);
 
-        for (controller in controllers) {
-          controllers[controller].attachRoutes(app);
-        }
+    app.get('/', (req, res) => {
+      res.status(200).json({ Hello: 'World' });
+    });
+
+    for (controller in controllers) {
+      controllers[controller].attachRoutes(app);
     }
+  }
 }
