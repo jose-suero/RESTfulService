@@ -4,6 +4,6 @@ const { loginEmail }= require('./login-email');
 module.exports = {
     attachRoutes: function (router) {
       router.post('/auth/signupemail', signupEmail);
-      router.post('/auth/loginEmail', loginEmail);
+      router.post('/auth/loginemail', loginEmail);
     }
 }
