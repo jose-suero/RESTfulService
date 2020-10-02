@@ -2,6 +2,7 @@ const { UserModel } = require('../../models/user');
 const { IdentityModel } = require('../../models/identity');
 const { AppError } = require('../../common');
 const { hashPassword } = require('../../../lib/hash-utils');
+const { createToken } = require('./create-token');
 
 const PROVIDER_NAME = 'email';
 
@@ -33,12 +34,19 @@ exports.signupEmail = async (model) => {
 
   await identity.save();
 
+  const token = await createToken(user._id, {
+    userId: user._id,
+    email: identity.providerKey,
+    provider: identity.providerName
+  });
+
   return {
     userId: user._id.toString(), 
     firstName: user.firstName,
     lastName: user.lastName,
     identityId: identity._id,
     email: identity.providerKey,
-    providerName: identity.providerName
+    providerName: identity.providerName,
+    token
   }
 }
